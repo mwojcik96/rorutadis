@@ -14,6 +14,12 @@ maximizeEpsilon <- function(model) {
   return (extremizeVariable(model$constraints, model$epsilonIndex, TRUE))
 } 
 
+maximizeDelta <- function(model) {
+  stopifnot(!is.null(model$deltaIndex))
+  
+  return (extremizeVariable(model$constraints, model$deltaIndex, TRUE))
+}
+
 isModelConsistent <- function(model) {            
   ret <- maximizeEpsilon(model)
   
@@ -68,6 +74,22 @@ toSolution <- function(model, values) {
     epsilon <- RORUTADIS_MINEPS
   }
   
+  # delta
+  
+  delta <- NULL
+  
+  if (!is.null(model$deltaIndex)) {
+    delta <- values[model$deltaIndex]
+  }
+  
+  # theta
+  
+  theta <- NULL
+  
+  if (!is.null(model$thetaIndex)) {
+    theta <- values[model$thetaIndex]
+  }
+  
   # vf
   
   vf <- list()
@@ -118,6 +140,8 @@ toSolution <- function(model, values) {
     alternativeValues = alternativeValues,
     solution = values,
     epsilon = epsilon,
+    delta = delta,
+    theta = theta,
     generalVF = model$generalVF
     ))
 }

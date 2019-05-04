@@ -535,3 +535,39 @@ findSimpleFunction <- function(problem) {
   return (NULL)
 }
 
+#' Find a max-min formulation function
+#'
+#' This function finds single value function that is consistent with provided preferece information.
+#' Search is done by delta maximization.
+#' 
+#' @param problem Problem
+#' @return List with named elements:
+#' \itemize{
+#' \item \code{vf} - list of 2-column matrices with marginal value functions (characteristic point in rows),
+#' \item \code{thresholds},
+#' \item \code{assignments},
+#' \item \code{alternativeValues},
+#' \item \code{epsilon}.
+#' }
+#' @seealso
+#' \code{\link{plotVF}}
+#' \code{\link{plotComprehensiveValue}}
+#' \code{\link{findSimpleFunction}}
+#' \code{\link{findRepresentativeFunction}}
+#' @examples
+#' perf <- matrix(c(5, 2, 1, 7, 0.5, 0.9, 0.4, 0.4), ncol = 2)
+#' problem <- buildProblem(perf, 3, FALSE, c('g', 'g'), c(0, 0))
+#' problem <- addAssignmentsLB(problem, c(1, 2), c(2, 3))
+#' 
+#' simpleFunction <- findMaxMinFormulationFunction(problem)
+#' @export
+findMaxMinFormulationFunction <- function(problem) {
+  model <- buildModel(problem, FALSE, TRUE, FALSE)
+  solution <- maximizeDelta(model)
+  
+  if (solution$status == 0 && solution$optimum >= RORUTADIS_MINEPS) {
+    return (toSolution(model, solution$solution))
+  }
+  
+  return (NULL)
+}
