@@ -25,7 +25,7 @@
 #' \strong{0} elements.
 #' The exact result can be calculated with function \link{calculateExtremeClassCardinalities}.
 #' }
-#' @seealso
+#' @seealso 
 #' \code{\link{buildProblem}}
 #' \code{\link{calculateAssignments}}
 #' \code{\link{compareAssignments}}

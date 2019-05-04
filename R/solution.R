@@ -12,7 +12,7 @@ maximizeEpsilon <- function(model) {
   stopifnot(!is.null(model$epsilonIndex))
   
   return (extremizeVariable(model$constraints, model$epsilonIndex, TRUE))
-}
+} 
 
 isModelConsistent <- function(model) {            
   ret <- maximizeEpsilon(model)

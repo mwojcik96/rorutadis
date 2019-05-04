@@ -1,7 +1,7 @@
 #### HELPERS
 
 #' Check problem consistency
-#'
+#' 
 #' This function allows to check if preference information is consistent.
 #' 
 #' @param problem Problem to check. 

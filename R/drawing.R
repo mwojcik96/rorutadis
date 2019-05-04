@@ -141,7 +141,7 @@ plotVF <- function(solution, criteria = NULL, yAxis = "max", showAlternatives = 
 #' Plot comprehensive values of altarnatives
 #' 
 #' This function draws bar chart of comprehensive values of altarnatives.
-#' 
+#'  
 #' @param solution Solution to plot (e.g. result of
 #' \code{\link{findRepresentativeFunction}}, \code{\link{findSimpleFunction}}
 #' or \code{\link{investigateUtility}}).

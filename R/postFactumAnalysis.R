@@ -13,7 +13,7 @@ isModelConsistentForRho <- function(alternative, atLeastToClass, criteria, neces
       }
     }
   } else {
-    # deterioration
+    # deterioration 
     for (criterion in 1:ncol(problem$perf)) {
       if (criteria[criterion]) {
         problem$perf[alternative, criterion] <- max(original[criterion] * rho,

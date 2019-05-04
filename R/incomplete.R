@@ -54,7 +54,7 @@ extendModelWithAssignmentComparisonVariables <- function(model, firstAssignmentV
 #' @param reg Reg
 #' @param accuracy Accuracy
 #' @return List with named elements:
-#' \itemize{
+#' \itemize{ 
 #' \item \code{vf} - list of 2-column matrices with marginal value functions (characteristic point in rows),
 #' \item \code{thresholds},
 #' \item \code{assignments},

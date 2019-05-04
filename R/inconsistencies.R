@@ -1,5 +1,5 @@
 #' Find inconsistencies in preference information
-#'
+#' 
 #' This function finds sets of pieces of preference information that make
 #' problem inconsistent.
 #' 

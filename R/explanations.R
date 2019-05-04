@@ -40,7 +40,7 @@ isSuperset <- function(set, subset) {
 #' alternative <- 4
 #' assignment <- c(min(which(possibleAssignments[alternative, ])),
 #'                max(which(possibleAssignments[alternative, ])))
-#'                
+#'                 
 #' preferentialReducts <- explainAssignment(alternative,
 #'    assignment, problem)
 #' preferentialCore <- getPreferentialCore(preferentialReducts)

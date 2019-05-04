@@ -1,5 +1,5 @@
 #### HELPERS
-
+ 
 buildLBAssignmentsConstraint <- function(alternative, atLeastToClass, model, excludingVariableIndex = NULL) {
   if (atLeastToClass <= 1 || atLeastToClass > model$nrClasses)
     return (NULL)
