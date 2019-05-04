@@ -6,6 +6,11 @@ buildLBAssignmentsConstraint <- function(alternative, atLeastToClass, model, exc
   
   lhs <- ua(alternative, ncol(model$constraints$lhs), model$perfToModelVariables)
   lhs[model$firstThresholdIndex + atLeastToClass - 2] <- -1
+  
+  if (!is.null(model$deltaIndex)) {
+    lhs[model$deltaIndex] <- -1
+  }
+  
   rhs <- 0
   
   if (!is.null(excludingVariableIndex)) {
@@ -22,6 +27,11 @@ buildUBAssignmentsConstraint <- function(alternative, atMostToClass, model, excl
   
   lhs <- ua(alternative, ncol(model$constraints$lhs), model$perfToModelVariables)
   lhs[model$firstThresholdIndex + atMostToClass - 1] <- -1
+  
+  if (!is.null(model$deltaIndex)) {
+    lhs[model$deltaIndex] <- 1
+  }
+  
   rhs <- 0
   
   if (is.null(model$epsilonIndex)) {
@@ -122,7 +132,7 @@ removeConstraints <- function(allConst, constraintsToRemoveIndices) {
 
 #### BUILDING MODEL
 
-buildModel <- function(problem, includeEpsilonAsVariable) {  
+buildModel <- function(problem, includeEpsilonAsVariable, includeDeltaAsVariable = FALSE, includeThetaAsVariable = FALSE) {  
   nrAlternatives <- nrow(problem$perf)
   nrCriteria <- ncol(problem$perf)
   
@@ -159,7 +169,7 @@ buildModel <- function(problem, includeEpsilonAsVariable) {
     criterionValues[[j]] <- criterionValues[[j]][order(
       sapply(criterionValues[[j]],
              function(x) x$value, simplify=TRUE
-             ), decreasing=FALSE)]
+      ), decreasing=FALSE)]
   }
   
   perfToModelVariables <- replicate(nrCriteria, replicate(nrAlternatives, list()))
@@ -291,6 +301,22 @@ buildModel <- function(problem, includeEpsilonAsVariable) {
     epsilonIndex <- numberOfVariables
   }
   
+  # delta index
+  
+  deltaIndex <- NULL
+  if (includeDeltaAsVariable) {
+    numberOfVariables <- numberOfVariables + 1
+    deltaIndex <- numberOfVariables
+  }
+  
+  # theta index
+  
+  thetaIndex <- NULL
+  if (includeDeltaAsVariable) {
+    numberOfVariables <- numberOfVariables + 1
+    thetaIndex <- numberOfVariables
+  }
+  
   # threshold indices
   
   firstThresholdIndex <- numberOfVariables + 1  
@@ -334,6 +360,10 @@ buildModel <- function(problem, includeEpsilonAsVariable) {
         }
       }
       
+      if (includeThetaAsVariable) {
+        lhs[thetaIndex] <- 1
+      }
+      
       constraints <- combineConstraints(constraints,
                                         list(lhs = lhs, dir = "<=", rhs = rhs))
     }
@@ -355,7 +385,7 @@ buildModel <- function(problem, includeEpsilonAsVariable) {
     }
     
     constraints <- combineConstraints(constraints,
-                                      list(lhs = lhs, dir = "<=", rhs = rhs))
+                                      list(lhs = lhs, dir = "<=", rhs = rhs)) # TODO: check if it's required to dir = "==" -> u(x_i_min) == 0 (now it's >= 0 which is inconsistent with definition) 
   }
   
   # first threshold over 0
@@ -415,6 +445,8 @@ buildModel <- function(problem, includeEpsilonAsVariable) {
     constraints = constraints,
     firstChPointVariableIndex = firstChPointVariableIndex,
     epsilonIndex = epsilonIndex,
+    thetaIndex = thetaIndex,
+    deltaIndex = deltaIndex,
     firstThresholdIndex = firstThresholdIndex,
     chPoints = chPoints,
     perfToModelVariables = perfToModelVariables,
@@ -435,7 +467,7 @@ buildModel <- function(problem, includeEpsilonAsVariable) {
     for (k in seq_len(nrow(problem$assignmentsLB))) {
       alternative <- problem$assignmentsLB[k, 1]
       atLeastToClass <- problem$assignmentsLB[k, 2]
-            
+      
       cstr <- buildLBAssignmentsConstraint(alternative, atLeastToClass, model)
       if (!is.null(cstr)) {
         model$constraints <- combineConstraints(model$constraints, cstr)
@@ -447,7 +479,7 @@ buildModel <- function(problem, includeEpsilonAsVariable) {
       prefInfoIndex <- prefInfoIndex + 1
     }
   }
-
+  
   if (is.matrix(problem$assignmentsUB)) {
     for (k in seq_len(nrow(problem$assignmentsUB))) {
       alternative <- problem$assignmentsUB[k, 1]
@@ -456,7 +488,7 @@ buildModel <- function(problem, includeEpsilonAsVariable) {
       cstr <- buildUBAssignmentsConstraint(alternative, atMostToClass, model)
       if (!is.null(cstr)) {
         model$constraints <- combineConstraints(model$constraints, cstr)
-      
+        
         model$prefInfoToConstraints[[prefInfoIndex]] <- nrow(model$constraints$lhs)
       } else {
         model$prefInfoToConstraints[[prefInfoIndex]] <- NULL
@@ -467,9 +499,9 @@ buildModel <- function(problem, includeEpsilonAsVariable) {
   }  
   
   if ((is.matrix(problem$assignmentPairwiseAtLeastComparisons) && nrow(problem$assignmentPairwiseAtLeastComparisons) > 0) ||
-        (is.matrix(problem$assignmentPairwiseAtMostComparisons) && nrow(problem$assignmentPairwiseAtMostComparisons) > 0) ||
-        (is.matrix(problem$minimalClassCardinalities) && nrow(problem$minimalClassCardinalities) > 0) ||
-        (is.matrix(problem$maximalClassCardinalities) && nrow(problem$maximalClassCardinalities) > 0)) {
+      (is.matrix(problem$assignmentPairwiseAtMostComparisons) && nrow(problem$assignmentPairwiseAtMostComparisons) > 0) ||
+      (is.matrix(problem$minimalClassCardinalities) && nrow(problem$minimalClassCardinalities) > 0) ||
+      (is.matrix(problem$maximalClassCardinalities) && nrow(problem$maximalClassCardinalities) > 0)) {
     model <- extendModelWithAssignmentVariables(model)
     firstAssignmentVariableIndex <- model$firstThresholdIndex + model$nrClasses - 1
     numberOfVariables <- ncol(model$constraints$lhs)
@@ -577,7 +609,7 @@ buildModel <- function(problem, includeEpsilonAsVariable) {
       }
     }
   }
-
+  
   return (model)
 }
 
