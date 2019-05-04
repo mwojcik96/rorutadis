@@ -20,6 +20,12 @@ maximizeDelta <- function(model) {
   return (extremizeVariable(model$constraints, model$deltaIndex, TRUE))
 }
 
+maximizeTheta <- function(model) {
+  stopifnot(!is.null(model$thetaIndex))
+  
+  return (extremizeVariable(model$constraints, model$thetaIndex, TRUE))
+}
+
 isModelConsistent <- function(model) {            
   ret <- maximizeEpsilon(model)
   
@@ -123,20 +129,28 @@ toSolution <- function(model, values) {
   # alternative values
   alternativeValues <- matrix(nrow=nrAlternatives, ncol=nrCriteria)
   
+  # alternative global values
+  alternativeGlobalValues <- c()
+  
   for (i in seq_len(nrAlternatives)) {
+    currentAlternativeSum <- 0
+    
     for (j in seq_len(nrCriteria)) {
       alternativeValues[i, j] <- 0
       
       for (k in seq_len(length(model$perfToModelVariables[[i, j]]))) {
         alternativeValues[i, j] <- alternativeValues[i, j] + values[model$perfToModelVariables[[i, j]][[k]][1]] * model$perfToModelVariables[[i, j]][[k]][2]
       }
+      currentAlternativeSum <- currentAlternativeSum + alternativeValues[i, j]
     }
+    alternativeGlobalValues <- append(alternativeGlobalValues, currentAlternativeSum)
   }
   
   return (list(
     vf = vf,
     thresholds = thresholds,
     assignments = assignments,
+    alternativeGlobalValues = alternativeGlobalValues,
     alternativeValues = alternativeValues,
     solution = values,
     epsilon = epsilon,

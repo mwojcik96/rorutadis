@@ -312,7 +312,7 @@ buildModel <- function(problem, includeEpsilonAsVariable, includeDeltaAsVariable
   # theta index
   
   thetaIndex <- NULL
-  if (includeDeltaAsVariable) {
+  if (includeThetaAsVariable) {
     numberOfVariables <- numberOfVariables + 1
     thetaIndex <- numberOfVariables
   }
