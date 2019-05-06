@@ -8,6 +8,15 @@ extremizeVariable <- function(constraints, variableIndex, maximize) {
                  types = constraints$types)
 }
 
+extremizeVariablesSum <- function(constraints, variableIndices, maximize) {
+  obj <- rep(0, ncol(constraints$lhs))
+  for (value in variableIndices) {
+    obj[value] <- 1  
+  }
+  Rglpk_solve_LP(obj, constraints$lhs, constraints$dir, constraints$rhs, max = maximize,
+                 types = constraints$types)
+}
+
 maximizeEpsilon <- function(model) {
   stopifnot(!is.null(model$epsilonIndex))
   
@@ -24,6 +33,13 @@ maximizeTheta <- function(model) {
   stopifnot(!is.null(model$thetaIndex))
   
   return (extremizeVariable(model$constraints, model$thetaIndex, TRUE))
+}
+
+maximizeThetaAndDelta <- function(model) {
+  stopifnot(!is.null(model$thetaIndex))
+  stopifnot(!is.null(model$deltaIndex))
+  
+  return (extremizeVariablesSum(model$constraints, c(model$deltaIndex, model$thetaIndex), TRUE))
 }
 
 isModelConsistent <- function(model) {            
